@@ -4,24 +4,24 @@ This repository contains the python scripts used for the analysis and graphs gen
 
 Contents:
 
-- [figures/manuscript_figures](https://docs.conda.io/en/latest/): Figures used in the manuscript
-- [models](https://docs.conda.io/en/latest/):
-    - [manuscript_experiments.py](https://docs.conda.io/en/latest/) Calls the funcionality in [deeptone_classifier.py](https://docs.conda.io/en/latest/) to taylor the experiment discussed in the manuscript.
-    - [deeptone_classifier.py](https://docs.conda.io/en/latest/) Contains the main functionality used for the analysis
+- [figures/manuscript_figures](https://github.com/otosystems/deeptone_chimps_publication/blob/master/figures/manuscript_figures): Figures used in the manuscript
+- [models](https://github.com/otosystems/deeptone_chimps_publication/blob/master/models):
+    - [manuscript_experiments.py](https://github.com/otosystems/deeptone_chimps_publication/blob/master/models/manuscript_experiments.py) Calls the funcionality in [deeptone_classifier.py](https://github.com/otosystems/deeptone_chimps_publication/blob/master/models/deeptone_classifier.py) to taylor the experiment discussed in the manuscript.
+    - [deeptone_classifier.py](https://github.com/otosystems/deeptone_chimps_publication/blob/master/models/deeptone_classifier.py) Contains the main functionality used for the analysis
 - [results_folder](https://docs.conda.io/en/latest/): Contains the .csv files containg the main results used in the manuscript
 - requirements.txt: List of dependcies required to run the experiment.
 
 The functionality for:
 
-    a) Importing audio via ...
-    b) Generating embeddings spaced via ...
-    c) Generating machine / deep learning classifications via ...
-    d) Plotting via ...
+    a) Importing audio 
+    b) Generating embeddings spaces
+    c) Generating machine / deep learning classifications
+    d) Plotting
     
-are all contained in [models.deeptone_classifier.py](https://docs.conda.io/en/latest/).
+are all contained in [models.deeptone_classifier.py](https://github.com/otosystems/deeptone_chimps_publication/blob/master/models/deeptone_classifier.py).
 
 
-Instead the functionality in [models.manuscript_experiments.py](https://docs.conda.io/en/latest/) is dedicated to choosing hyperparameters relative to the functionality in [models.deeptone_classifier.py](https://docs.conda.io/en/latest/), and combining the enclosed functionality to create the specific experiments and respective graphs discussed in the manuscript. 
+Instead the functionality in [models.manuscript_experiments.py](https://github.com/otosystems/deeptone_chimps_publication/blob/master/models/manuscript_experiments.py) is dedicated to choosing hyperparameters relative to the functionality in [models.deeptone_classifier.py](https://github.com/otosystems/deeptone_chimps_publication/blob/master/models/deeptone_classifier.py), and combining the enclosed functionality to create the specific experiments and respective graphs discussed in the manuscript. 
 
 To run the experiment discussed in the manuscript please install the required dependcies listed in requirements.txt.
 
