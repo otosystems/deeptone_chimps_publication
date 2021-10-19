@@ -14,9 +14,6 @@ from sklearn.metrics import classification_report, recall_score, accuracy_score,
 global conv_fact
 conv_fact = 2 ** 31
 
-refference_key = pd.DataFrame(data=dict(call_type_real=["High hoot","High hoot","Food call","Peep"],call_type=["HH_HIgh_hoots","high_hoots","FC_food_calls","peeps"]))
-name_key = pd.DataFrame(data=dict(label_real=["Emil","Ben"],label=["EMil","BEn"]))
-
 
 def acronym_gen(phrase):
     """Acronym generator
