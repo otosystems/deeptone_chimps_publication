@@ -1,27 +1,30 @@
 import os
 import sox
 import tqdm
-import deeptone
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from sklearn import svm
-import deeptone_classifier
 from scipy.stats import uniform
 import matplotlib.pyplot as plt
+from models import deeptone_classifier
 from sklearn.naive_bayes import GaussianNB
 import sklearn.gaussian_process.kernels as kerns
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.gaussian_process import GaussianProcessClassifier
 
-plt.style.use('fivethirtyeight')
+try:
+    import deeptone
+except Exception as e:
+    raise Warning(e)
 
+plt.style.use('fivethirtyeight')
 
 def get_audio_files(data_folder, expected_sr, remove_unexpected_sr = False):
     # Find audio files 
     audio_files = [f for f in os.listdir(data_folder) if f.lower().endswith('.wav')]
         
-    # Removal of unxepEcted sampling rates
+    # Removal of unxepected sampling rates
     unexptected_srs = []
     for audio_file in audio_files:
         if sox.file_info.sample_rate(os.path.join(data_folder,audio_file)) != expected_sr:
@@ -31,7 +34,6 @@ def get_audio_files(data_folder, expected_sr, remove_unexpected_sr = False):
         Warning(f'Found files with unxepcted sample rates: Removing {remove_unexpected_sr}')
         
     return audio_files
-
 
 def get_metadata(audio_files, data_folder):         
 
@@ -49,6 +51,11 @@ def get_metadata(audio_files, data_folder):
     dfi_keep = dfi_keep.iloc[np.nonzero(dfi_keep.call_type.values != 'pg')[0],:]
     dfi_keep.loc[:,"call_type"] = ["Combination" if "-" in f else f for f in dfi_keep.call_type.values]
 
+    try:
+        os.system(f'mkdir {data_folder}/keep')
+    except Exception as e:
+        print(e)
+
     [os.system(f'cp {data_folder}/{f} {data_folder}/keep/{f}') for f in dfi_keep.file_name.values] 
 
     dfi_keep['call_type'] = dfi_keep['call_type'].str.replace('phi', "Pant-hoot-intro")
@@ -56,14 +63,19 @@ def get_metadata(audio_files, data_folder):
 
     return dfi_keep
 
-
 def analysis(data_folder, results_folder, front_end_dictionary, model_dictionary, C_choice_list, train_num_list, active_param_sampling, label, nested_labels):
-
-    os.mkdir(results_folder)
+    
+    try:
+        os.mkdir(results_folder)
+    except Exception as e:
+        print(e)
+    
     root_seed = 1
-    expected_sr = 44100 
+     
+    audio_files = get_audio_files(data_folder, expected_sr = 16000, remove_unexpected_sr = True)
 
-    audio_files = get_audio_files(data_folder, expected_sr, remove_unexpected_sr = True)
+    if len(audio_files)==0:
+        raise EnvironmentError("No audio files found")
 
     with_plots = False
 
@@ -81,7 +93,7 @@ def analysis(data_folder, results_folder, front_end_dictionary, model_dictionary
                             data_folder = data_folder,
                             normalise = True,
                             average= False,
-                            expected_sr = expected_sr,
+                            expected_sr = 16000,
                             target_model = front_end["model_type"])
    
         # Transform the embeddings space by averaging over time
@@ -108,7 +120,7 @@ def analysis(data_folder, results_folder, front_end_dictionary, model_dictionary
                 for train_num in tqdm.tqdm(train_num_list): 
 
                     # Run multiple classification experiments for desired classifier
-                    df_pre_scores, est_vals = deeptone_classifier.run_classifier(df = dfi_keep, 
+                    df_pre_scores, est_vals, n_train = deeptone_classifier.run_classifier(df = dfi_keep, 
                                                         train_num = train_num,
                                                         n_rand = 500,
                                                         seed = root_seed,
@@ -178,7 +190,6 @@ def analysis(data_folder, results_folder, front_end_dictionary, model_dictionary
 
     return report
 
-
 def save_and_plot_mfcc_vs_deeptone_comparisson(report):
     report.to_csv(f"{results_folder}/reportz_mfcc_v_identity.csv")
 
@@ -196,10 +207,9 @@ def save_and_plot_mfcc_vs_deeptone_comparisson(report):
     plt.tight_layout()
     plt.savefig(f'{results_folder}/comparisson_deeptone_VS_mfcc.png') 
 
-
-if __name__ == '__main__':
-
-    data_folder = "data_folder"
+def manuscript_analysis():
+    
+    data_folder = "data/experiment_data"
     
     results_folder = "results_folder" 
 
@@ -322,5 +332,56 @@ if __name__ == '__main__':
             nested_labels= ['call_type'])
 
     save_and_plot_mfcc_vs_deeptone_comparisson(report)
+
+def example_mfcc_analysis():
+    
+    data_folder = "data/experiment_data"
+    
+    results_folder = "results_folder" 
+
+    #############
+    # MFCC only #
+    #############
+
+    _ = analysis(data_folder,
+             results_folder,
+             front_end_dictionary = {
+                    "mfcc":{
+                        "model_type":"mfcc",
+                        "model_name":"mfcc"
+                    },
+                                    },
+             model_dictionary = {
+                    'NaiveBayes':{
+                        'name' : 'Naive Bayes',
+                        'fixed_parameters': None,
+                        'model': GaussianNB(),
+                        'search_parameters': None},
+                    'RandomForest':{
+                        'name' : 'Random Forest',
+                        'fixed_parameters': None,
+                        'model': RandomForestClassifier(),
+                        'search_parameters': dict(n_estimators=np.arange(1,101))},
+                    'GaussianProcess':{
+                        'name' : 'Gaussian Processes',
+                        'fixed_parameters': dict(kernel=kerns.RationalQuadratic()),
+                        'model': GaussianProcessClassifier,
+                        'search_parameters': None},
+                    'SupportVectorMachine':{
+                        'name' : 'Support Vector Machine',
+                        'fixed_parameters': dict(kernel = 'rbf',
+                                                decision_function_shape = 'ovo',
+                                                gamma='scale'),
+                        'model': svm.SVC,
+                        'search_parameters': dict(C=uniform(loc=1, scale=30), degree = list(range(20)))} 
+                                 },
+             C_choice_list = [1],
+             train_num_list = [0.85],
+             active_param_sampling = False,
+             label= "label",
+             nested_labels= ["call_type"])
+
+if __name__ == '__main__':
+    example_mfcc_analysis()
 
 

@@ -2,7 +2,6 @@ import os
 import tqdm
 import random
 import librosa
-import deeptone
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -10,6 +9,11 @@ from pydub import AudioSegment
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import classification_report, recall_score, accuracy_score, confusion_matrix, f1_score
+
+try:
+    import deeptone
+except Exception as e:
+    raise Warning(e)
 
 global conv_fact
 conv_fact = 2 ** 31

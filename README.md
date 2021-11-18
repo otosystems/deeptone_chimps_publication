@@ -1,5 +1,9 @@
 # Summary
 
+IMPORTANT NOTICE:
+
+The succesful implementation of the entire experimental codebase that resides in this repository requires restriced access to the `deeptone.models.Identity` feature extracture, that is licensed and managed by [OTO Systems Inc.](https://www.oto.ai/). As it stands, running the main analtsis script will only generate results using MFCCs as a feature extractor to give an example of the codebase functionality. 
+
 This repository contains the python scripts used for the analysis and graphs generation that was used for the [insert pre-publication link]
 
 Contents:
